@@ -209,9 +209,11 @@ export default function RecipeDetailPage({
                 });
                 if (res.status === 401) { setShowLoginModal(true); return; }
                 const data = await res.json();
-                if (data.action === "added") { setLikeCount(l => l + 1); setUserReaction("like"); }
-                else if (data.action === "removed") { setLikeCount(l => l - 1); setUserReaction(null); }
-                else if (data.action === "changed") { setLikeCount(l => l + 1); setDislikeCount(d => d - 1); setUserReaction("like"); }
+                setLikeCount(data.like_count ?? likeCount);
+                setDislikeCount(data.dislike_count ?? dislikeCount);
+                if (data.action === "added") setUserReaction("like");
+                else if (data.action === "removed") setUserReaction(null);
+                else if (data.action === "changed") setUserReaction("like");
                 if (data.ukStatus === "left_uk") setToast({ message: "영국음식에서 복귀했습니다!", type: "info" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -229,9 +231,11 @@ export default function RecipeDetailPage({
                 });
                 if (res.status === 401) { setShowLoginModal(true); return; }
                 const data = await res.json();
-                if (data.action === "added") { setDislikeCount(d => d + 1); setUserReaction("dislike"); }
-                else if (data.action === "removed") { setDislikeCount(d => d - 1); setUserReaction(null); }
-                else if (data.action === "changed") { setDislikeCount(d => d + 1); setLikeCount(l => l - 1); setUserReaction("dislike"); }
+                setLikeCount(data.like_count ?? likeCount);
+                setDislikeCount(data.dislike_count ?? dislikeCount);
+                if (data.action === "added") setUserReaction("dislike");
+                else if (data.action === "removed") setUserReaction(null);
+                else if (data.action === "changed") setUserReaction("dislike");
                 if (data.ukStatus === "became_uk") setToast({ message: "🇬🇧 축하합니다! 귀하의 레시피가 영국음식으로 승격되었습니다", type: "uk" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${

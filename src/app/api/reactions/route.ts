@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
           .eq("id", recipe_id);
       }
 
-      return NextResponse.json({ action: "removed" });
+      const counts1 = await getCounts(supabase, recipe_id);
+      return NextResponse.json({ action: "removed", ...counts1 });
     }
 
     // 다른 반응이면 변경
@@ -92,7 +93,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ action: "changed", type });
+    const counts2 = await getCounts(supabase, recipe_id);
+    return NextResponse.json({ action: "changed", type, ...counts2 });
   }
 
   // 새 반응 등록
@@ -143,7 +145,18 @@ export async function POST(request: NextRequest) {
   // 업적 체크 (반응한 유저 + 레시피 작성자)
   await checkAchievements(supabase, dbUser.id);
 
-  return NextResponse.json({ action: "added", type, ukStatus });
+  const counts3 = await getCounts(supabase, recipe_id);
+  return NextResponse.json({ action: "added", type, ukStatus, ...counts3 });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getCounts(supabase: any, recipeId: number) {
+  const { data } = await supabase
+    .from("recipes")
+    .select("like_count, dislike_count")
+    .eq("id", recipeId)
+    .single();
+  return { like_count: data?.like_count || 0, dislike_count: data?.dislike_count || 0 };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
