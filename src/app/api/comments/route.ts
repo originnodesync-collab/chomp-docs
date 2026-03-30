@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addPoints } from "@/lib/points";
+import { checkAchievements } from "@/lib/achievements";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
   }
 
   await addPoints(supabase, dbUser.id, "COMMENT");
+  await checkAchievements(supabase, dbUser.id);
 
   return NextResponse.json({ comment });
 }

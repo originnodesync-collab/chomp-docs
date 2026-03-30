@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addPoints } from "@/lib/points";
+import { checkAchievements } from "@/lib/achievements";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -103,5 +104,8 @@ export async function POST(request: NextRequest) {
   // 포인트 지급
   await addPoints(supabase, dbUser.id, "RECIPE_REGISTER");
 
-  return NextResponse.json({ recipe });
+  // 업적 체크
+  const newAchievements = await checkAchievements(supabase, dbUser.id);
+
+  return NextResponse.json({ recipe, newAchievements });
 }

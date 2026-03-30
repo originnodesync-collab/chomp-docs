@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addPoints } from "@/lib/points";
+import { checkAchievements } from "@/lib/achievements";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -138,6 +139,9 @@ export async function POST(request: NextRequest) {
       await addPoints(supabase, recipeData.user_id, "RECIPE_LIKED");
     }
   }
+
+  // 업적 체크 (반응한 유저 + 레시피 작성자)
+  await checkAchievements(supabase, dbUser.id);
 
   return NextResponse.json({ action: "added", type });
 }
