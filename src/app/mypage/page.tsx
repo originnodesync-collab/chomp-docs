@@ -149,7 +149,7 @@ export default function MyPage() {
           ))}
         </section>
 
-        {/* 업적 */}
+        {/* 업적 + 칭호 장착 */}
         <section className="bg-surface border border-border rounded-xl p-4 mb-4">
           <h3 className="font-semibold text-text text-sm mb-3">
             업적 ({achievements.length}/{Object.keys(ACHIEVEMENTS).length})
@@ -157,15 +157,40 @@ export default function MyPage() {
           <div className="flex flex-wrap gap-2">
             {Object.entries(ACHIEVEMENTS).map(([code, info]) => {
               const earned = achievements.includes(code);
+              const isEquipped = user.active_title === code;
               return (
-                <span key={code}
-                  className={`text-xs px-2.5 py-1 rounded-full ${earned ? "bg-cta/10 text-cta" : "bg-border/50 text-text-sub/50"}`}
-                  title={info.condition}>
+                <button key={code}
+                  disabled={!earned}
+                  onClick={async () => {
+                    if (!earned) return;
+                    const newTitle = isEquipped ? null : code;
+                    const res = await fetch("/api/titles", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ title_code: newTitle }),
+                    });
+                    if (res.ok) {
+                      user.active_title = newTitle;
+                      router.refresh();
+                      window.location.reload();
+                    }
+                  }}
+                  className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
+                    isEquipped
+                      ? "bg-cta text-white ring-2 ring-cta/30"
+                      : earned
+                      ? "bg-cta/10 text-cta hover:bg-cta/20 cursor-pointer"
+                      : "bg-border/50 text-text-sub/50 cursor-not-allowed"
+                  }`}
+                  title={earned ? (isEquipped ? "클릭하면 해제" : "클릭하면 장착") : info.condition}>
                   {info.title}
-                </span>
+                </button>
               );
             })}
           </div>
+          {achievements.length > 0 && (
+            <p className="text-xs text-text-sub mt-2">달성한 업적을 탭하면 칭호로 장착/해제됩니다</p>
+          )}
         </section>
 
         {/* 메뉴 */}

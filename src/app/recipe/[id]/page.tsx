@@ -30,6 +30,7 @@ export default function RecipeDetailPage({
   const [comments, setComments] = useState<Array<{id: number; content: string; created_at: string; user: {nickname: string; active_title: string | null} | null}>>([]);
   const [newComment, setNewComment] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -70,6 +71,10 @@ export default function RecipeDetailPage({
           const { data: reaction } = await supabase
             .from("recipe_reactions").select("type").eq("recipe_id", id).eq("user_id", dbUser.id).single();
           if (reaction) setUserReaction(reaction.type);
+
+          const { data: saved } = await supabase
+            .from("user_saved_recipes").select("id").eq("recipe_id", id).eq("user_id", dbUser.id).single();
+          if (saved) setIsSaved(true);
         }
       }
 
@@ -230,6 +235,38 @@ export default function RecipeDetailPage({
               }`}
             >
               👎 {dislikeCount}
+            </button>
+            <button
+              onClick={async () => {
+                const res = await fetch("/api/saved", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ recipe_id: Number(id) }),
+                });
+                if (res.status === 401) { setShowLoginModal(true); return; }
+                const data = await res.json();
+                setIsSaved(data.action === "saved");
+              }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                isSaved ? "bg-yellow-50 text-yellow-600 border border-yellow-200" : "bg-surface border border-border text-text-sub"
+              }`}
+            >
+              {isSaved ? "⭐ 저장됨" : "☆ 저장"}
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm("이 레시피를 신고하시겠습니까?")) return;
+                const res = await fetch("/api/reports", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ target_type: "recipe", target_id: Number(id) }),
+                });
+                if (res.status === 401) { setShowLoginModal(true); return; }
+                if (res.ok) alert("신고가 접수되었습니다");
+              }}
+              className="px-3 py-2 rounded-full text-xs text-text-sub bg-surface border border-border"
+            >
+              🚨
             </button>
           </div>
 
