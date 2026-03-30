@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
   await addPoints(supabase, dbUser.id, "REACTION");
 
   // 영국음식 편입 체크
-  await checkUkFood(supabase, recipe_id);
+  const ukStatus = await checkUkFood(supabase, recipe_id);
 
   // 레시피 작성자에게 좋아요 포인트
   if (type === "like") {
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
   // 업적 체크 (반응한 유저 + 레시피 작성자)
   await checkAchievements(supabase, dbUser.id);
 
-  return NextResponse.json({ action: "added", type });
+  return NextResponse.json({ action: "added", type, ukStatus });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,5 +164,7 @@ async function checkUkFood(supabase: any, recipeId: number) {
       .from("recipes")
       .update({ is_uk_food: shouldBeUk })
       .eq("id", recipeId);
+    return shouldBeUk ? "became_uk" : "left_uk";
   }
+  return null;
 }

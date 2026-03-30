@@ -9,6 +9,7 @@ import type { Recipe, RecipeStep, RecipeIngredient, Ingredient } from "@/types/d
 import { createClient } from "@/lib/supabase/client";
 import { ACHIEVEMENTS } from "@/lib/constants";
 import LoginModal from "@/components/LoginModal";
+import Toast from "@/components/Toast";
 
 interface IngredientWithName extends RecipeIngredient {
   ingredient: Ingredient;
@@ -31,6 +32,7 @@ export default function RecipeDetailPage({
   const [newComment, setNewComment] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "uk" | "info" } | null>(null);
 
   useEffect(() => {
     async function fetchRecipe() {
@@ -210,6 +212,7 @@ export default function RecipeDetailPage({
                 if (data.action === "added") { setLikeCount(l => l + 1); setUserReaction("like"); }
                 else if (data.action === "removed") { setLikeCount(l => l - 1); setUserReaction(null); }
                 else if (data.action === "changed") { setLikeCount(l => l + 1); setDislikeCount(d => d - 1); setUserReaction("like"); }
+                if (data.ukStatus === "left_uk") setToast({ message: "영국음식에서 복귀했습니다!", type: "info" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 userReaction === "like" ? "bg-red-50 text-red-500 border border-red-200" : "bg-surface border border-border text-text-sub"
@@ -229,6 +232,7 @@ export default function RecipeDetailPage({
                 if (data.action === "added") { setDislikeCount(d => d + 1); setUserReaction("dislike"); }
                 else if (data.action === "removed") { setDislikeCount(d => d - 1); setUserReaction(null); }
                 else if (data.action === "changed") { setDislikeCount(d => d + 1); setLikeCount(l => l - 1); setUserReaction("dislike"); }
+                if (data.ukStatus === "became_uk") setToast({ message: "🇬🇧 축하합니다! 귀하의 레시피가 영국음식으로 승격되었습니다", type: "uk" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 userReaction === "dislike" ? "bg-blue-50 text-blue-500 border border-blue-200" : "bg-surface border border-border text-text-sub"
@@ -419,6 +423,7 @@ export default function RecipeDetailPage({
       </main>
       <BottomTabBar />
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );
 }
