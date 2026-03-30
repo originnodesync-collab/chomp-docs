@@ -9,21 +9,42 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function getUser() {
-      const supabase = createClient();
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+    const supabase = createClient();
 
-      if (authUser) {
+    async function getUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
         const { data } = await supabase
           .from("users")
           .select("*")
-          .eq("auth_id", authUser.id)
+          .eq("auth_id", session.user.id)
           .single();
         setUser(data);
       }
       setLoading(false);
     }
+
     getUser();
+
+    // 로그인/로그아웃 상태 변화 감지
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          const { data } = await supabase
+            .from("users")
+            .select("*")
+            .eq("auth_id", session.user.id)
+            .single();
+          setUser(data);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return { user, loading };

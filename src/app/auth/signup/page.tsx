@@ -57,14 +57,15 @@ export default function SignupPage() {
       });
 
       if (profileError) {
-        setError("프로필 생성에 실패했습니다");
+        setError("프로필 생성에 실패했습니다: " + profileError.message);
         setLoading(false);
         return;
       }
     }
 
-    router.push("/");
-    router.refresh();
+    // 세션이 확실히 설정될 때까지 잠시 대기
+    await new Promise(resolve => setTimeout(resolve, 500));
+    window.location.href = "/";
   };
 
   return (
