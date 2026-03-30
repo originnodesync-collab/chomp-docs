@@ -42,7 +42,17 @@ export default function MyPage() {
     fetchData();
   }, [user]);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1 flex items-center justify-center p-6">
+          <p className="text-text-sub text-sm">로딩 중...</p>
+        </main>
+        <BottomTabBar />
+      </>
+    );
+  }
 
   if (!user) {
     return (

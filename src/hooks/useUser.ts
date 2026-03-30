@@ -11,32 +11,46 @@ export function useUser() {
   useEffect(() => {
     const supabase = createClient();
 
-    async function getUser() {
-      const { data: { session } } = await supabase.auth.getSession();
+    async function fetchProfile(authId: string) {
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("auth_id", authId)
+        .single();
+      return data;
+    }
 
-      if (session?.user) {
-        const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("auth_id", session.user.id)
-          .single();
-        setUser(data);
+    async function init() {
+      try {
+        // getSession으로 먼저 시도
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const profile = await fetchProfile(session.user.id);
+          setUser(profile);
+          setLoading(false);
+          return;
+        }
+
+        // session이 없으면 getUser로 재시도
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          const profile = await fetchProfile(authUser.id);
+          setUser(profile);
+        }
+      } catch {
+        // 무시
       }
       setLoading(false);
     }
 
-    getUser();
+    init();
 
     // 로그인/로그아웃 상태 변화 감지
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
-          const { data } = await supabase
-            .from("users")
-            .select("*")
-            .eq("auth_id", session.user.id)
-            .single();
-          setUser(data);
+          const profile = await fetchProfile(session.user.id);
+          setUser(profile);
         } else {
           setUser(null);
         }
