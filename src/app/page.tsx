@@ -1,7 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
 
 const menuCards = [
   {
@@ -36,22 +40,26 @@ const menuCards = [
 
 const medals = ["🥇", "🥈", "🥉"];
 
-export const revalidate = 3600; // 1시간 캐시
+export default function Home() {
+  const { user } = useUser();
+  const [ranking, setRanking] = useState<Array<{ id: number; title: string; like_count: number }>>([]);
 
-export default async function Home() {
-  const supabase = await createClient();
-
-  const { data: topRecipes } = await supabase
-    .from("recipes")
-    .select("id, title, like_count")
-    .order("like_count", { ascending: false })
-    .limit(5);
-
-  const ranking = topRecipes || [];
+  useEffect(() => {
+    async function fetchRanking() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("recipes")
+        .select("id, title, like_count")
+        .order("like_count", { ascending: false })
+        .limit(5);
+      setRanking(data || []);
+    }
+    fetchRanking();
+  }, []);
 
   return (
     <>
-      <Header />
+      <Header level={user?.level} />
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-4 pb-24">
         {/* 2×2 메뉴 카드 */}
         <section className="grid grid-cols-2 gap-3 mb-8">
@@ -97,7 +105,7 @@ export default async function Home() {
           </div>
           {ranking.length === 0 ? (
             <div className="bg-surface border border-border rounded-xl p-6 text-center">
-              <p className="text-text-sub text-sm">아직 랭킹 데이터가 없습니다</p>
+              <p className="text-text-sub text-sm">랭킹 로딩 중...</p>
             </div>
           ) : (
             <div className="bg-surface border border-border rounded-xl overflow-hidden">
