@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@/types/database";
 
@@ -8,58 +8,40 @@ export function useUser() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const supabase = createClient();
+  const loadProfile = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
 
-    async function fetchProfile(authId: string) {
+      if (!session?.user) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("users")
         .select("*")
-        .eq("auth_id", authId)
+        .eq("auth_id", session.user.id)
         .single();
-      return data;
+
+      setUser(data);
+    } catch {
+      setUser(null);
     }
+    setLoading(false);
+  }, []);
 
-    async function init() {
-      try {
-        // getSession으로 먼저 시도
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setUser(profile);
-          setLoading(false);
-          return;
-        }
+  useEffect(() => {
+    loadProfile();
 
-        // session이 없으면 getUser로 재시도
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-          const profile = await fetchProfile(authUser.id);
-          setUser(profile);
-        }
-      } catch {
-        // 무시
-      }
-      setLoading(false);
-    }
-
-    init();
-
-    // 로그인/로그아웃 상태 변화 감지
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setUser(profile);
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      }
-    );
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadProfile();
+    });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [loadProfile]);
 
   return { user, loading };
 }
