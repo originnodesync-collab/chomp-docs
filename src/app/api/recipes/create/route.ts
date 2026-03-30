@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       cook_time_min: body.cook_time_min,
       servings: body.servings,
       description: body.description,
+      image_url: body.image_url || null,
       is_official: false,
       user_id: dbUser.id,
     })

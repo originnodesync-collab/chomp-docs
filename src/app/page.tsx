@@ -36,6 +36,8 @@ const menuCards = [
 
 const medals = ["🥇", "🥈", "🥉"];
 
+export const revalidate = 3600; // 1시간 캐시
+
 export default async function Home() {
   const supabase = await createClient();
 

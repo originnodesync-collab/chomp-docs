@@ -405,7 +405,24 @@ export default function RecipeDetailPage({
                         · {new Date(c.created_at).toLocaleDateString("ko")}
                       </span>
                     </div>
-                    <p className="text-sm text-text">{c.content}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-text flex-1">{c.content}</p>
+                      <button
+                        onClick={async () => {
+                          if (!confirm("이 댓글을 신고하시겠습니까?")) return;
+                          const res = await fetch("/api/reports", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ target_type: "comment", target_id: c.id }),
+                          });
+                          if (res.status === 401) { setShowLoginModal(true); return; }
+                          if (res.ok) setToast({ message: "신고가 접수되었습니다", type: "info" });
+                        }}
+                        className="shrink-0 ml-2 text-xs text-text-sub/50 hover:text-red-400"
+                      >
+                        🚨
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

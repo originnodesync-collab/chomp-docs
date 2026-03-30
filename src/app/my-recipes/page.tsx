@@ -84,16 +84,36 @@ export default function MyRecipesPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {displayRecipes.map(recipe => (
-              <Link key={recipe.id} href={`/recipe/${recipe.id}`}
-                className="block bg-surface border border-border rounded-xl p-4 hover:border-cta/30 transition-colors">
-                <p className="font-semibold text-sm text-text mb-1">{recipe.title}</p>
-                <div className="flex items-center gap-2 text-xs text-text-sub">
-                  <span>{recipe.category1}</span>
-                  <span>·</span>
-                  <span>❤️ {recipe.like_count}</span>
-                  {recipe.is_uk_food && <span>🇬🇧</span>}
-                </div>
-              </Link>
+              <div key={recipe.id} className="bg-surface border border-border rounded-xl p-4 hover:border-cta/30 transition-colors">
+                <Link href={`/recipe/${recipe.id}`}>
+                  <p className="font-semibold text-sm text-text mb-1">{recipe.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-text-sub">
+                    <span>{recipe.category1}</span>
+                    <span>·</span>
+                    <span>❤️ {recipe.like_count}</span>
+                    {recipe.is_uk_food && <span>🇬🇧</span>}
+                  </div>
+                </Link>
+                {tab === "mine" && (
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (!confirm(`"${recipe.title}" 레시피를 삭제하시겠습니까?\n삭제 시 획득한 포인트가 회수됩니다.`)) return;
+                      const res = await fetch("/api/recipes/delete", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ recipe_id: recipe.id }),
+                      });
+                      if (res.ok) {
+                        setRecipes(recipes.filter(r => r.id !== recipe.id));
+                      }
+                    }}
+                    className="mt-2 text-xs text-red-400 hover:text-red-500"
+                  >
+                    삭제
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         )}

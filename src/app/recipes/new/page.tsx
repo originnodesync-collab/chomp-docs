@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import { useUser } from "@/hooks/useUser";
 import LoginModal from "@/components/LoginModal";
-import { CATEGORY1_OPTIONS, CATEGORY2_OPTIONS, DIFFICULTY_OPTIONS, SECTION_OPTIONS, SECTION_LABELS } from "@/lib/constants";
+import { CATEGORY1_OPTIONS, CATEGORY2_OPTIONS, DIFFICULTY_OPTIONS, SECTION_OPTIONS, SECTION_LABELS, IMAGE_UPLOAD } from "@/lib/constants";
 
 interface StepInput {
   section: string;
@@ -33,6 +33,8 @@ export default function NewRecipePage() {
   const [cookTime, setCookTime] = useState("");
   const [servings, setServings] = useState("2");
   const [description, setDescription] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
 
   const [ingredients, setIngredients] = useState<IngredientInput[]>([
     { name: "", amount: "", is_main: true },
@@ -95,6 +97,44 @@ export default function NewRecipePage() {
     setSteps(updated);
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!IMAGE_UPLOAD.allowedTypes.includes(file.type)) { setError("jpg, png, webp만 가능"); return; }
+    if (file.size > IMAGE_UPLOAD.maxSizeBytes) { setError("5MB 이하만 가능"); return; }
+    setError("");
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+        const maxPx = IMAGE_UPLOAD.maxResizePx;
+        if (width > maxPx || height > maxPx) {
+          if (width > height) { height = (height / width) * maxPx; width = maxPx; }
+          else { width = (width / height) * maxPx; height = maxPx; }
+        }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        setImagePreview(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.src = ev.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadImage = async (dataUrl: string): Promise<string> => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) return dataUrl;
+    const formData = new FormData();
+    const blob = await (await fetch(dataUrl)).blob();
+    formData.append("file", blob);
+    formData.append("upload_preset", "chomp_docs");
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: formData });
+    const data = await res.json();
+    return data.secure_url || dataUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -106,6 +146,11 @@ export default function NewRecipePage() {
     setSubmitting(true);
 
     try {
+      let imageUrl: string | null = null;
+      if (imagePreview) {
+        imageUrl = await uploadImage(imagePreview);
+      }
+
       const res = await fetch("/api/recipes/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,6 +158,7 @@ export default function NewRecipePage() {
           title: title.trim(),
           category1,
           category2: category2 || null,
+          image_url: imageUrl,
           difficulty,
           cook_time_min: cookTime ? Number(cookTime) : null,
           servings: Number(servings),
@@ -180,6 +226,22 @@ export default function NewRecipePage() {
             <textarea value={description} onChange={(e) => setDescription(e.target.value)}
               placeholder="한 줄 소개 (선택, 100자)" maxLength={100} rows={2}
               className="bg-base border border-border rounded-lg px-3 py-2.5 text-sm resize-none" />
+            {/* 대표 이미지 */}
+            <div
+              onClick={() => imageRef.current?.click()}
+              className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-cta/40 transition-colors"
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="미리보기" className="max-h-32 mx-auto rounded-lg" />
+              ) : (
+                <>
+                  <p className="text-xl mb-1">📷</p>
+                  <p className="text-xs text-text-sub">대표 이미지 (선택)</p>
+                </>
+              )}
+            </div>
+            <input ref={imageRef} type="file" accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageChange} className="hidden" />
           </section>
 
           {/* 재료 */}

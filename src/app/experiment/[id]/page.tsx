@@ -85,10 +85,20 @@ export default function ExperimentPage({
     return (
       <div className="min-h-screen bg-base flex flex-col items-center justify-center p-6">
         <div className="text-center">
-          {/* 도장 애니메이션 */}
-          <div className="relative inline-block mb-6 animate-bounce">
-            <div className="w-32 h-32 border-4 border-cta rounded-full flex items-center justify-center bg-cta/10 rotate-[-12deg]">
-              <span className="text-cta font-black text-xl leading-tight text-center">
+          {/* 도장 애니메이션 — 코럴색 도장 찍히는 효과 */}
+          <style>{`
+            @keyframes stamp {
+              0% { transform: scale(3) rotate(-20deg); opacity: 0; }
+              50% { transform: scale(0.9) rotate(-12deg); opacity: 1; }
+              70% { transform: scale(1.1) rotate(-10deg); }
+              100% { transform: scale(1) rotate(-12deg); opacity: 1; }
+            }
+            .stamp-animation { animation: stamp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+          `}</style>
+          <div className="relative inline-block mb-6 stamp-animation">
+            <div className="w-36 h-36 border-[5px] border-cta rounded-full flex items-center justify-center bg-cta/5 rotate-[-12deg] shadow-lg"
+              style={{ borderStyle: "double" }}>
+              <span className="text-cta font-black text-2xl leading-tight text-center drop-shadow-sm">
                 실험
                 <br />
                 성공!
