@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
+import { createClient } from "@/lib/supabase/server";
 
 const menuCards = [
   {
@@ -25,7 +26,7 @@ const menuCards = [
     highlight: false,
   },
   {
-    href: "/photos/new",
+    href: "/photos",
     icon: "📸",
     title: "결과사진 올리기",
     description: "요리 결과를 자랑하세요",
@@ -33,16 +34,19 @@ const menuCards = [
   },
 ];
 
-// 임시 랭킹 데이터 (나중에 API로 교체)
-const mockRanking = [
-  { rank: 1, medal: "🥇", title: "김치찌개", likeCount: 142 },
-  { rank: 2, medal: "🥈", title: "된장찌개", likeCount: 128 },
-  { rank: 3, medal: "🥉", title: "제육볶음", likeCount: 95 },
-  { rank: 4, medal: "", title: "불고기", likeCount: 87 },
-  { rank: 5, medal: "", title: "계란말이", likeCount: 72 },
-];
+const medals = ["🥇", "🥈", "🥉"];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+
+  const { data: topRecipes } = await supabase
+    .from("recipes")
+    .select("id, title, like_count")
+    .order("like_count", { ascending: false })
+    .limit(5);
+
+  const ranking = topRecipes || [];
+
   return (
     <>
       <Header />
@@ -89,26 +93,33 @@ export default function Home() {
               전체보기 →
             </Link>
           </div>
-          <div className="bg-surface border border-border rounded-xl overflow-hidden">
-            {mockRanking.map((item, idx) => (
-              <div
-                key={item.rank}
-                className={`flex items-center px-4 py-3 ${
-                  idx < mockRanking.length - 1 ? "border-b border-border" : ""
-                }`}
-              >
-                <span className="w-8 text-center font-bold text-sm text-text-sub">
-                  {item.medal || item.rank}
-                </span>
-                <span className="flex-1 text-sm font-medium text-text ml-2">
-                  {item.title}
-                </span>
-                <span className="text-xs text-text-sub">
-                  ❤️ {item.likeCount}
-                </span>
-              </div>
-            ))}
-          </div>
+          {ranking.length === 0 ? (
+            <div className="bg-surface border border-border rounded-xl p-6 text-center">
+              <p className="text-text-sub text-sm">아직 랭킹 데이터가 없습니다</p>
+            </div>
+          ) : (
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              {ranking.map((item, idx) => (
+                <Link
+                  key={item.id}
+                  href={`/recipe/${item.id}`}
+                  className={`flex items-center px-4 py-3 hover:bg-base transition-colors ${
+                    idx < ranking.length - 1 ? "border-b border-border" : ""
+                  }`}
+                >
+                  <span className="w-8 text-center font-bold text-sm text-text-sub">
+                    {idx < 3 ? medals[idx] : idx + 1}
+                  </span>
+                  <span className="flex-1 text-sm font-medium text-text ml-2">
+                    {item.title}
+                  </span>
+                  <span className="text-xs text-text-sub">
+                    ❤️ {item.like_count}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </main>
       <BottomTabBar />
