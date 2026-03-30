@@ -36,9 +36,14 @@ export default function SignupPage() {
     });
 
     if (authError) {
-      setError(authError.message === "User already registered"
-        ? "이미 가입된 이메일입니다"
-        : "회원가입에 실패했습니다");
+      console.error("Signup error:", authError);
+      if (authError.message === "User already registered") {
+        setError("이미 가입된 이메일입니다");
+      } else if (authError.message.includes("email")) {
+        setError("유효하지 않은 이메일 주소입니다");
+      } else {
+        setError(`회원가입 실패: ${authError.message}`);
+      }
       setLoading(false);
       return;
     }
