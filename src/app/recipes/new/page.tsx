@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from "@/lib/api";
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -151,7 +152,7 @@ export default function NewRecipePage() {
         imageUrl = await uploadImage(imagePreview);
       }
 
-      const res = await fetch("/api/recipes/create", {
+      const res = await fetchWithAuth("/api/recipes/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

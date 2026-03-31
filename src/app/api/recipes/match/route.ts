@@ -23,8 +23,10 @@ export async function GET(request: NextRequest) {
     .in("name", ingredientNames);
 
   const matchedIds = new Set<number>();
-  synonymMatches?.forEach((s) => matchedIds.add(s.ingredient_id));
-  directMatches?.forEach((d) => matchedIds.add(d.id));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  synonymMatches?.forEach((s: any) => matchedIds.add(s.ingredient_id));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  directMatches?.forEach((d: any) => matchedIds.add(d.id));
 
   if (matchedIds.size === 0) {
     return NextResponse.json({ recipes: [] });

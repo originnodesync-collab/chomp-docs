@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { fetchWithAuth } from "@/lib/api";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import { useUser } from "@/hooks/useUser";
@@ -80,7 +81,7 @@ export default function MyPage() {
     : 100;
 
   const handleCheckin = async () => {
-    const res = await fetch("/api/auth/checkin", { method: "POST" });
+    const res = await fetchWithAuth("/api/auth/checkin", { method: "POST" });
     const data = await res.json();
     if (data.success) {
       setCheckinDone(true);

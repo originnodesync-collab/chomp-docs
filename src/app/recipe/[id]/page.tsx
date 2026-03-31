@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ACHIEVEMENTS } from "@/lib/constants";
 import LoginModal from "@/components/LoginModal";
 import Toast from "@/components/Toast";
+import { fetchWithAuth } from "@/lib/api";
 
 interface IngredientWithName extends RecipeIngredient {
   ingredient: Ingredient;
@@ -116,7 +117,7 @@ export default function RecipeDetailPage({
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-    const res = await fetch("/api/comments", {
+    const res = await fetchWithAuth("/api/comments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ recipe_id: Number(id), content: newComment.trim() }),
@@ -202,7 +203,7 @@ export default function RecipeDetailPage({
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={async () => {
-                const res = await fetch("/api/reactions", {
+                const res = await fetchWithAuth("/api/reactions", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ recipe_id: Number(id), type: "like" }),
@@ -224,7 +225,7 @@ export default function RecipeDetailPage({
             </button>
             <button
               onClick={async () => {
-                const res = await fetch("/api/reactions", {
+                const res = await fetchWithAuth("/api/reactions", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ recipe_id: Number(id), type: "dislike" }),
@@ -246,7 +247,7 @@ export default function RecipeDetailPage({
             </button>
             <button
               onClick={async () => {
-                const res = await fetch("/api/saved", {
+                const res = await fetchWithAuth("/api/saved", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ recipe_id: Number(id) }),
@@ -264,7 +265,7 @@ export default function RecipeDetailPage({
             <button
               onClick={async () => {
                 if (!confirm("이 레시피를 신고하시겠습니까?")) return;
-                const res = await fetch("/api/reports", {
+                const res = await fetchWithAuth("/api/reports", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ target_type: "recipe", target_id: Number(id) }),
@@ -414,7 +415,7 @@ export default function RecipeDetailPage({
                       <button
                         onClick={async () => {
                           if (!confirm("이 댓글을 신고하시겠습니까?")) return;
-                          const res = await fetch("/api/reports", {
+                          const res = await fetchWithAuth("/api/reports", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ target_type: "comment", target_id: c.id }),

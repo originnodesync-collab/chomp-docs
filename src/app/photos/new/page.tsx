@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from "@/lib/api";
 
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -114,7 +115,7 @@ function PhotoUploadContent() {
         imageUrl = cloudData.secure_url;
       }
 
-      const res = await fetch("/api/photos", {
+      const res = await fetchWithAuth("/api/photos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

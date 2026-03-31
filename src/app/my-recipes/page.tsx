@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithAuth } from "@/lib/api";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -99,7 +100,7 @@ export default function MyRecipesPage() {
                     onClick={async (e) => {
                       e.stopPropagation();
                       if (!confirm(`"${recipe.title}" 레시피를 삭제하시겠습니까?\n삭제 시 획득한 포인트가 회수됩니다.`)) return;
-                      const res = await fetch("/api/recipes/delete", {
+                      const res = await fetchWithAuth("/api/recipes/delete", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ recipe_id: recipe.id }),
