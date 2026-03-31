@@ -18,10 +18,24 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError("이메일 또는 비밀번호가 올바르지 않습니다");
+      setError(`로그인 실패: ${error.message}`);
+      setLoading(false);
+      return;
+    }
+
+    if (!data.session) {
+      setError("로그인은 성공했지만 세션이 생성되지 않았습니다");
+      setLoading(false);
+      return;
+    }
+
+    // 세션 저장 확인
+    const { data: { session: checkSession } } = await supabase.auth.getSession();
+    if (!checkSession) {
+      setError("세션 저장에 실패했습니다. 브라우저 설정을 확인해주세요.");
       setLoading(false);
       return;
     }
