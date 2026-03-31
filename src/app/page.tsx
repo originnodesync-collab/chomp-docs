@@ -59,7 +59,7 @@ export default function Home() {
 
   return (
     <>
-      <Header level={user?.level} />
+      <Header />
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-4 pb-24">
         {/* 2×2 메뉴 카드 */}
         <section className="grid grid-cols-2 gap-3 mb-8">

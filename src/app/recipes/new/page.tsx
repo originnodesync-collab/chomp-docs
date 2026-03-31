@@ -185,7 +185,7 @@ export default function NewRecipePage() {
 
   return (
     <>
-      <Header level={user?.level} />
+      <Header />
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-4 pb-24">
         <h2 className="text-xl font-bold text-text mb-4">레시피 등록</h2>
 
