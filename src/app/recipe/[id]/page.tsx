@@ -212,9 +212,9 @@ export default function RecipeDetailPage({
                 const data = await res.json();
                 setLikeCount(data.like_count ?? likeCount);
                 setDislikeCount(data.dislike_count ?? dislikeCount);
-                if (data.action === "added") setUserReaction("like");
-                else if (data.action === "removed") setUserReaction(null);
-                else if (data.action === "changed") setUserReaction("like");
+                if (data.action === "added") { setUserReaction("like"); setToast({ message: "❤️ 좋아요!", type: "success" }); }
+                else if (data.action === "removed") { setUserReaction(null); setToast({ message: "좋아요 취소", type: "info" }); }
+                else if (data.action === "changed") { setUserReaction("like"); setToast({ message: "❤️ 좋아요로 변경!", type: "success" }); }
                 if (data.ukStatus === "left_uk") setToast({ message: "영국음식에서 복귀했습니다!", type: "info" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -234,9 +234,9 @@ export default function RecipeDetailPage({
                 const data = await res.json();
                 setLikeCount(data.like_count ?? likeCount);
                 setDislikeCount(data.dislike_count ?? dislikeCount);
-                if (data.action === "added") setUserReaction("dislike");
-                else if (data.action === "removed") setUserReaction(null);
-                else if (data.action === "changed") setUserReaction("dislike");
+                if (data.action === "added") { setUserReaction("dislike"); setToast({ message: "👎 싫어요", type: "info" }); }
+                else if (data.action === "removed") { setUserReaction(null); setToast({ message: "싫어요 취소", type: "info" }); }
+                else if (data.action === "changed") { setUserReaction("dislike"); setToast({ message: "👎 싫어요로 변경", type: "info" }); }
                 if (data.ukStatus === "became_uk") setToast({ message: "🇬🇧 축하합니다! 귀하의 레시피가 영국음식으로 승격되었습니다", type: "uk" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -254,7 +254,9 @@ export default function RecipeDetailPage({
                 });
                 if (res.status === 401) { setShowLoginModal(true); return; }
                 const data = await res.json();
-                setIsSaved(data.action === "saved");
+                const saved = data.action === "saved";
+                setIsSaved(saved);
+                setToast({ message: saved ? "⭐ 저장 완료!" : "저장 해제", type: saved ? "success" : "info" });
               }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 isSaved ? "bg-yellow-50 text-yellow-600 border border-yellow-200" : "bg-surface border border-border text-text-sub"

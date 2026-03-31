@@ -80,15 +80,17 @@ export default function MyPage() {
     ? ((user.points - levelInfo.requiredPoints) / (nextLevel.requiredPoints - levelInfo.requiredPoints)) * 100
     : 100;
 
+  const [toast, setToast] = useState<string | null>(null);
+
   const handleCheckin = async () => {
     const res = await fetchWithAuth("/api/auth/checkin", { method: "POST" });
     const data = await res.json();
     if (data.success) {
       setCheckinDone(true);
-      alert(`출석 완료! +1P${data.bonusPoints > 0 ? ` (보너스 +${data.bonusPoints}P)` : ""}\n연속 ${data.streak}일`);
-      router.refresh();
+      setToast(`📅 출석 완료! +1P${data.bonusPoints > 0 ? ` (보너스 +${data.bonusPoints}P)` : ""} · 연속 ${data.streak}일`);
+      setTimeout(() => window.location.reload(), 1500);
     } else if (data.alreadyChecked) {
-      alert("이미 오늘 출석했습니다");
+      setToast("이미 오늘 출석했습니다 ✓");
     }
   };
 
@@ -225,6 +227,11 @@ export default function MyPage() {
         </button>
       </main>
       <BottomTabBar />
+      {toast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-text text-base rounded-xl px-5 py-3 shadow-lg text-sm font-semibold animate-bounce">
+          {toast}
+        </div>
+      )}
     </>
   );
 }
