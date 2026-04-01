@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "http",
+        hostname: "www.foodsafetykorea.go.kr",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.foodsafetykorea.go.kr",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "res.cloudinary.com",
         pathname: "/**",
