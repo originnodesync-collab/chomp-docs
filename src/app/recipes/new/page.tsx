@@ -233,6 +233,7 @@ export default function NewRecipePage() {
               className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-cta/40 transition-colors"
             >
               {imagePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={imagePreview} alt="미리보기" className="max-h-32 mx-auto rounded-lg" />
               ) : (
                 <>

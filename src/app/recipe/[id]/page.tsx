@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
@@ -149,11 +150,14 @@ export default function RecipeDetailPage({
       <main className="flex-1 max-w-lg mx-auto w-full pb-24">
         {/* 대표 이미지 */}
         {recipe.image_url && (
-          <div className="w-full h-52 bg-border">
-            <img
+          <div className="w-full h-52 bg-border relative">
+            <Image
               src={recipe.image_url}
               alt={recipe.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 512px) 100vw, 512px"
+              priority
             />
           </div>
         )}
@@ -364,11 +368,15 @@ export default function RecipeDetailPage({
                           </div>
                         </div>
                         {step.image_url && (
-                          <img
-                            src={step.image_url}
-                            alt={`Step ${step.step_number}`}
-                            className="w-full rounded-lg mt-3"
-                          />
+                          <div className="relative w-full h-48 mt-3">
+                            <Image
+                              src={step.image_url}
+                              alt={`Step ${step.step_number}`}
+                              fill
+                              className="object-cover rounded-lg"
+                              sizes="(max-width: 512px) 100vw, 512px"
+                            />
+                          </div>
                         )}
                       </div>
                     ))}

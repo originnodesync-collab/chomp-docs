@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useWakeLock } from "@/hooks/useWakeLock";
@@ -306,11 +307,15 @@ export default function ExperimentPage({
 
         {/* 단계 이미지 */}
         {currentStep.image_url && (
-          <img
-            src={currentStep.image_url}
-            alt={`Step ${currentStep.step_number}`}
-            className="w-full rounded-xl mb-4"
-          />
+          <div className="relative w-full h-52 mb-4">
+            <Image
+              src={currentStep.image_url}
+              alt={`Step ${currentStep.step_number}`}
+              fill
+              className="object-cover rounded-xl"
+              sizes="(max-width: 512px) 100vw, 512px"
+            />
+          </div>
         )}
 
         {/* 타이머 */}

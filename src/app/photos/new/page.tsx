@@ -155,6 +155,7 @@ function PhotoUploadContent() {
           className="bg-surface border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-cta/40 transition-colors"
         >
           {preview ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={preview} alt="미리보기" className="max-h-60 mx-auto rounded-lg" />
           ) : (
             <>

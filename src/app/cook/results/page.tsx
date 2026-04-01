@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
@@ -118,11 +119,13 @@ function ResultsContent() {
             >
               <div className="flex">
                 {recipe.image_url && (
-                  <div className="w-24 h-24 shrink-0 bg-border">
-                    <img
+                  <div className="w-24 h-24 shrink-0 bg-border relative">
+                    <Image
                       src={recipe.image_url}
                       alt={recipe.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="96px"
                     />
                   </div>
                 )}

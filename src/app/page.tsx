@@ -5,7 +5,6 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import { createClient } from "@/lib/supabase/client";
-import { useUser } from "@/hooks/useUser";
 
 const menuCards = [
   {
@@ -41,7 +40,6 @@ const menuCards = [
 const medals = ["🥇", "🥈", "🥉"];
 
 export default function Home() {
-  const { user } = useUser();
   const [ranking, setRanking] = useState<Array<{ id: number; title: string; like_count: number }>>([]);
 
   useEffect(() => {

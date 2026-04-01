@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
@@ -22,21 +22,23 @@ export default function FridgePage() {
   const [newIngredient, setNewIngredient] = useState("");
   const [newCategory, setNewCategory] = useState("채소");
 
-  useEffect(() => {
+  const fetchItems = useCallback(async () => {
     if (!user) return;
-    fetchItems();
-  }, [user]);
-
-  async function fetchItems() {
     const supabase = createClient();
     const { data } = await supabase
       .from("user_inventory")
       .select("id, category, ingredient:ingredients(id, name)")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .order("category");
     setItems((data as unknown as InventoryItem[]) || []);
     setLoading(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchItems();
+  }, [user, fetchItems]);
 
   const addItem = async () => {
     if (!newIngredient.trim() || !user) return;

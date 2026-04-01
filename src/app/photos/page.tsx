@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import { createClient } from "@/lib/supabase/client";
@@ -72,8 +73,8 @@ export default function PhotosPage() {
           <div className="grid grid-cols-2 gap-2">
             {photos.map(photo => (
               <div key={photo.id} className="bg-surface border border-border rounded-xl overflow-hidden">
-                <div className="aspect-square bg-border">
-                  <img src={photo.image_url} alt="" className="w-full h-full object-cover" />
+                <div className="aspect-square bg-border relative">
+                  <Image src={photo.image_url} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" />
                 </div>
                 <div className="p-2">
                   <p className="text-xs font-medium text-text line-clamp-1">

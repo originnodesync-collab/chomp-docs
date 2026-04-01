@@ -30,13 +30,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "삭제할 수 없습니다" }, { status: 403 });
   }
 
-  // 해당 레시피로 받은 포인트 계산 (등록 10P + 받은 좋아요 2P씩)
-  const { data: pointLogs } = await supabase
-    .from("point_logs")
-    .select("amount")
-    .eq("user_id", dbUser.id)
-    .like("reason", `%RECIPE_REGISTER%`);
-
   // 레시피 삭제 (CASCADE로 steps, ingredients, reactions, comments 자동 삭제)
   await supabase.from("recipes").delete().eq("id", recipe_id);
 

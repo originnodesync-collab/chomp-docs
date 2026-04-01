@@ -12,6 +12,7 @@ export default function Toast({ message, type = "info", onClose }: ToastProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(true);
     const timer = setTimeout(() => {
       setVisible(false);

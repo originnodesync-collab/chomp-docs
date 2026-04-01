@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { fetchWithAuth } from "@/lib/api";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
@@ -107,9 +108,9 @@ export default function MyPage() {
         {/* 프로필 */}
         <section className="bg-surface border border-border rounded-xl p-4 mb-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-14 h-14 bg-border rounded-full flex items-center justify-center text-2xl">
+            <div className="w-14 h-14 bg-border rounded-full flex items-center justify-center text-2xl overflow-hidden relative">
               {user.profile_image_url ? (
-                <img src={user.profile_image_url} alt="" className="w-full h-full rounded-full object-cover" />
+                <Image src={user.profile_image_url} alt="" fill className="rounded-full object-cover" sizes="56px" />
               ) : "👤"}
             </div>
             <div className="flex-1">
