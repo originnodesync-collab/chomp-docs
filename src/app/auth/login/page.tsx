@@ -111,12 +111,17 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-text-sub mt-6">
-          아직 계정이 없나요?{" "}
-          <Link href="/auth/signup" className="text-cta font-semibold">
-            회원가입
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-sm text-text-sub">
+            아직 계정이 없나요?{" "}
+            <Link href="/auth/signup" className="text-cta font-semibold">
+              회원가입
+            </Link>
+          </p>
+          <Link href="/auth/reset-password" className="text-sm text-text-sub hover:text-cta transition-colors">
+            비밀번호 찾기
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

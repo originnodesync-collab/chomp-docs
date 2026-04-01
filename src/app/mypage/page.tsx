@@ -232,9 +232,10 @@ export default function MyPage() {
           {[
             { href: "/my-recipes", label: "내 레시피", icon: "📖" },
             { href: "/fridge", label: "냉장고 인벤토리", icon: "🧊" },
-          ].map((item, idx) => (
+            ...(user.role === "admin" ? [{ href: "/admin", label: "어드민 패널", icon: "🛡️" }] : []),
+          ].map((item, idx, arr) => (
             <Link key={item.href} href={item.href}
-              className={`flex items-center px-4 py-3 hover:bg-base transition-colors ${idx < 1 ? "border-b border-border" : ""}`}>
+              className={`flex items-center px-4 py-3 hover:bg-base transition-colors ${idx < arr.length - 1 ? "border-b border-border" : ""}`}>
               <span className="mr-3">{item.icon}</span>
               <span className="text-sm text-text">{item.label}</span>
               <span className="ml-auto text-text-sub text-xs">→</span>

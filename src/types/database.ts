@@ -28,6 +28,7 @@ export interface User {
   streak_days: number;
   last_checkin: string | null;
   contribution_badge: boolean;
+  role: "user" | "admin";
   created_at: string;
 }
 

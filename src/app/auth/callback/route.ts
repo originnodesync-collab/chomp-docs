@@ -4,10 +4,19 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const type = searchParams.get("type");
 
   if (code) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    // 비밀번호 재설정 플로우: update-password 페이지로 이동
+    if (type === "recovery") {
+      if (!error) {
+        return NextResponse.redirect(`${origin}/auth/update-password`);
+      }
+      return NextResponse.redirect(`${origin}/auth/reset-password?error=expired`);
+    }
 
     if (!error && data.user) {
       // 유저 프로필이 없으면 생성
