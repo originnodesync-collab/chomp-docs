@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
   const limit = 20;
   const offset = (page - 1) * limit;
 
-  if (!q && !category) {
+  // q도 없고 category도 없으면 아무것도 반환하지 않음
+  const hasQ = q.length > 0;
+  if (!hasQ && !category) {
     return NextResponse.json({ recipes: [], hasMore: false, total: 0 });
   }
 
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   // 재료 synonym 검색: 쿼리가 재료명과 매칭되는지 확인
   let ingredientRecipeIds: number[] | null = null;
-  if (q) {
+  if (hasQ) {
     const { data: synonymData } = await supabase
       .from("ingredient_synonyms")
       .select("ingredient_id")
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
     .select("*", { count: "exact" });
 
   // 텍스트 검색: title ILIKE OR ingredient 매칭된 recipe id
-  if (q) {
+  if (hasQ) {
     if (ingredientRecipeIds && ingredientRecipeIds.length > 0) {
       // title 검색 + ingredient 검색 합집합 (or 조건)
       query = query.or(

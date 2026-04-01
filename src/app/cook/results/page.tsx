@@ -39,8 +39,10 @@ function ResultsContent() {
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
 
-  // 필터 상태
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  // 필터 상태 (URL 파라미터로 초기화)
+  const [categoryFilter, setCategoryFilter] = useState<string>(
+    searchParams.get("category") || ""
+  );
   const [difficultyFilter, setDifficultyFilter] = useState<string>("");
   const [sort, setSort] = useState<"popular" | "latest">("popular");
 
@@ -58,7 +60,7 @@ function ResultsContent() {
         setRecipes(data.recipes || []);
         setTotal(data.recipes?.length || 0);
         setHasMore(false);
-      } else if (query) {
+      } else if (query !== null) {
         const params = new URLSearchParams({
           q: query,
           sort,
@@ -105,7 +107,9 @@ function ResultsContent() {
 
   const searchLabel = ingredients
     ? `재료 ${ingredients.split(",").length}개로 검색`
-    : `"${query}" 검색 결과`;
+    : query
+    ? `"${query}" 검색 결과`
+    : "레시피 탐색";
 
   return (
     <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-4 pb-24">
@@ -188,7 +192,19 @@ function ResultsContent() {
         <div className="text-center py-16">
           <p className="text-3xl mb-3">📭</p>
           <p className="text-text-sub text-sm">연구 데이터 없음</p>
-          <p className="text-text-sub text-xs mt-1">다른 검색어나 필터로 시도해보세요</p>
+          <p className="text-text-sub text-xs mt-1">
+            {difficultyFilter
+              ? "난이도 정보는 유저 등록 레시피에만 있어요. 필터를 해제해보세요!"
+              : "다른 검색어나 필터로 시도해보세요"}
+          </p>
+          {difficultyFilter && (
+            <button
+              onClick={() => setDifficultyFilter("")}
+              className="mt-3 text-xs text-cta font-semibold"
+            >
+              난이도 필터 해제
+            </button>
+          )}
         </div>
       ) : (
         <>
