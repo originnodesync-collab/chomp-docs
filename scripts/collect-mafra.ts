@@ -110,11 +110,14 @@ async function fetchAll<T>(gridId: string, pageSize = 500): Promise<T[]> {
     all.push(...rows);
 
     const total = grid.list_total_count || 0;
-    console.log(`  → ${total}건 중 ${all.length}건 수집`);
+    console.log(`  → 누적 ${all.length}건 수집 (API 총계: ${total})`);
 
-    if (all.length >= total || rows.length < pageSize) break;
+    // total이 0으로 오는 API 버그 대응: 받은 rows가 pageSize보다 적으면 마지막 페이지
+    if (rows.length < pageSize) break;
+    // total이 정상적으로 오면 초과 여부 체크
+    if (total > 0 && all.length >= total) break;
+
     start += pageSize;
-
     await new Promise(r => setTimeout(r, 300)); // API 과부하 방지
   }
 
