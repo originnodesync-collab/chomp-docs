@@ -22,6 +22,7 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 
 const SOURCE_LABELS: Record<string, string> = {
   foodsafety: "식약처",
+  mafra: "농림부",
   nongsaro: "농사로",
   visitkorea: "한국관광",
   heritage: "전통",

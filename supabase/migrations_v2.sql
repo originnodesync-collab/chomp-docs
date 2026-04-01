@@ -129,7 +129,8 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR DEFAULT 'user';
 -- ────────────────────────────────────────────────────────────
 
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS source VARCHAR DEFAULT 'foodsafety';
--- source 값: 'foodsafety' / 'nongsaro' / 'visitkorea' / 'heritage' / 'user'
+-- source 값: 'foodsafety' / 'mafra' / 'nongsaro' / 'visitkorea' / 'heritage' / 'user'
+-- mafra: 농림수산식품교육문화정보원 (scripts/collect-mafra.ts)
 
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS calories NUMERIC;
 ALTER TABLE recipes ADD COLUMN IF NOT EXISTS protein NUMERIC;
