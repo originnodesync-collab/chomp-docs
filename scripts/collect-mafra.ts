@@ -289,8 +289,9 @@ async function main() {
 
       try {
         const ingredientId = await getOrCreateIngredient(name);
-        // IRDNT_TY_CODE: "1"=주재료, 나머지=부재료/양념
-        const isMain = ing.IRDNT_TY_CODE === "1";
+        // IRDNT_TY_CODE: "3060001"=주재료, "3060002"=부재료, "3060003"=양념
+        // IRDNT_TY_NM: "주재료" 로도 확인
+        const isMain = ing.IRDNT_TY_CODE === "3060001" || ing.IRDNT_TY_NM === "주재료";
 
         await supabase.from("recipe_ingredients").insert({
           recipe_id:     recipe.id,
