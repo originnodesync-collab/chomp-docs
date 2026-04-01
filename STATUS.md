@@ -1,4 +1,4 @@
-# 쩝쩝박사들의 연구노트 — 현황 정리 (2026-04-01)
+# 쩝쩝박사들의 연구노트 — 현황 정리 (2026-04-01, 최종 업데이트: MAFRA 수집 완료)
 
 ## 프로젝트 기본 정보
 
@@ -183,12 +183,12 @@ CREATE TABLE reports (
 
 ### 현재 데이터
 
-| 테이블 | 건수 |
-|---|---|
-| recipes | 1,146개 (식약처 COOKRCP01) |
-| recipe_steps | 6,657개 |
-| ingredients | 1,079개 |
-| ingredient_synonyms | 169개 (87그룹) |
+| 테이블 | 건수 | 비고 |
+|---|---|---|
+| recipes | ~1,683개 | 식약처 1,146 + MAFRA 537 |
+| recipe_steps | ~9,679개 | MAFRA 3,022 추가 |
+| ingredients | ~1,794개 | MAFRA 715 신규 |
+| ingredient_synonyms | ~1,963개 | MAFRA 재료 자동 등록 |
 
 ---
 
@@ -198,6 +198,7 @@ CREATE TABLE reports (
 - [x] 식약처 COOKRCP01 1,146개 레시피 수집
 - [x] 재료 파싱 + DB 삽입
 - [x] 재료 동의어 87그룹 등록
+- [x] 농림수산식품교육문화정보원(MAFRA) 537개 레시피 수집 (`scripts/collect-mafra.ts`)
 
 ### Phase 1 — 기본 탐색
 - [x] 홈 화면 — 2×2 메뉴 카드 + 실시간 DB 랭킹 TOP5
@@ -305,20 +306,27 @@ CREATE TABLE reports (
 
 ---
 
-## 4. 미구현 항목 (MVP 제외 명시)
+## 4. 추가 구현 항목 (MVP 범위 초과)
+
+| 항목 | 상태 | 비고 |
+|---|---|---|
+| 비밀번호 찾기/재설정 | ✅ 구현 | `/auth/reset-password`, `/auth/update-password` |
+| 팔로우 / 커뮤니티 피드 | ✅ 구현 | `/api/users/[id]/follow`, `/api/feed` |
+| 커뮤니티 게시판 | ✅ 구현 | `/community`, `/community/new`, `/community/[id]` |
+| 어드민 페이지 | ✅ 구현 | `/admin` (신고관리 + 유저관리) |
+| 영양정보 표시 | ✅ 구현 | 레시피 상세 페이지 (칼로리/탄수/단백/지방) |
+| 카테고리 탐색 | ✅ 구현 | `/search` → `/cook/results?q=&category=X` |
+| MAFRA 레시피 수집 | ✅ 구현 | `scripts/collect-mafra.ts` |
+
+## 5. 미구현 항목 (MVP 제외 확정)
 
 | 항목 | 비고 |
 |---|---|
-| 구글/카카오 OAuth 실제 연동 | Supabase 대시보드에서 Provider 키 입력 필요. 코드는 준비됨 |
-| 비밀번호 찾기/재설정 | MVP 제외 → 소셜 로그인으로 대체 예정 |
-| 초성 검색 | MVP 제외 → 2차에서 pg_trgm 확장으로 구현 |
-| 대댓글 (2depth) | MVP 제외 |
-| 팔로우 / 커뮤니티 피드 | MVP 제외 |
-| 어드민 페이지 | MVP 제외 |
-| 중식/일식/양식 레시피 | MVP 제외 |
-| AI 사진 재료 인식 | MVP 제외 |
-| 영양정보 표시 | MVP 제외. 식약처 데이터에 포함되어 있어 2차에서 활용 가능 |
-| 소비기한 알림 | MVP 제외 |
+| 구글/카카오 OAuth | Supabase 대시보드에서 Provider 키 입력 필요. 코드는 준비됨 |
+| 초성 검색 | 2차에서 pg_trgm 확장으로 구현 |
+| 대댓글 (2depth) | 2차 |
+| AI 사진 재료 인식 | 2차 |
+| 소비기한 알림 | 2차 |
 
 ---
 
@@ -396,7 +404,8 @@ CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
-FOODSAFETY_API_KEY=
+FOODSAFETY_API_KEY=          # 식약처 API (data.go.kr)
+MAFRA_API_KEY=               # 농림수산식품교육문화정보원 API (data.mafra.go.kr)
 CRON_SECRET=
 NEXT_PUBLIC_APP_URL=
 ```
