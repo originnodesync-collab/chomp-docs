@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import { createClient } from "@/lib/supabase/client";
+import { BOARD_CATEGORY_LABELS } from "@/lib/constants";
 
 const menuCards = [
   {
@@ -39,8 +40,18 @@ const menuCards = [
 
 const medals = ["🥇", "🥈", "🥉"];
 
+interface CommunityPost {
+  id: number;
+  category: string;
+  title: string;
+  like_count: number;
+  comment_count: number;
+  created_at: string;
+}
+
 export default function Home() {
   const [ranking, setRanking] = useState<Array<{ id: number; title: string; like_count: number }>>([]);
+  const [latestPosts, setLatestPosts] = useState<CommunityPost[]>([]);
 
   useEffect(() => {
     async function fetchRanking() {
@@ -52,7 +63,13 @@ export default function Home() {
         .limit(5);
       setRanking(data || []);
     }
+    async function fetchLatestPosts() {
+      const res = await fetch("/api/posts?category=전체&sort=latest&page=1");
+      const data = await res.json();
+      setLatestPosts((data.posts || []).slice(0, 3));
+    }
     fetchRanking();
+    fetchLatestPosts();
   }, []);
 
   return (
@@ -123,6 +140,46 @@ export default function Home() {
                   </span>
                   <span className="text-xs text-text-sub">
                     ❤️ {item.like_count}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* 커뮤니티 최신글 */}
+        <section className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-text">🏛️ 요리연구학회</h2>
+            <Link
+              href="/community"
+              className="text-xs text-text-sub hover:text-cta"
+            >
+              전체보기 →
+            </Link>
+          </div>
+          {latestPosts.length === 0 ? (
+            <div className="bg-surface border border-border rounded-xl p-6 text-center">
+              <p className="text-text-sub text-sm">아직 게시글이 없습니다</p>
+            </div>
+          ) : (
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              {latestPosts.map((post, idx) => (
+                <Link
+                  key={post.id}
+                  href={`/community/${post.id}`}
+                  className={`flex items-center gap-3 px-4 py-3 hover:bg-base transition-colors ${
+                    idx < latestPosts.length - 1 ? "border-b border-border" : ""
+                  }`}
+                >
+                  <span className="text-xs bg-cta/10 text-cta px-2 py-0.5 rounded-full font-semibold shrink-0">
+                    {BOARD_CATEGORY_LABELS[post.category] || post.category}
+                  </span>
+                  <span className="flex-1 text-sm text-text truncate">
+                    {post.title}
+                  </span>
+                  <span className="text-xs text-text-sub shrink-0">
+                    ❤️ {post.like_count}
                   </span>
                 </Link>
               ))}

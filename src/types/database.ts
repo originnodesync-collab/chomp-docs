@@ -137,6 +137,45 @@ export interface UserInventory {
   created_at: string;
 }
 
+export interface Post {
+  id: number;
+  user_id: number;
+  category: string;
+  title: string;
+  content: string;
+  image_url: string | null;
+  like_count: number;
+  comment_count: number;
+  view_count: number;
+  is_hidden: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PostComment {
+  id: number;
+  post_id: number;
+  user_id: number;
+  parent_id: number | null;
+  content: string;
+  is_hidden: boolean;
+  created_at: string;
+}
+
+export interface PostLike {
+  id: number;
+  post_id: number;
+  user_id: number;
+  created_at: string;
+}
+
+export interface Follow {
+  id: number;
+  follower_id: number;
+  following_id: number;
+  created_at: string;
+}
+
 export interface Report {
   id: number;
   reporter_id: number;

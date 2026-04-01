@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const tabs = [
   { href: "/", label: "홈", icon: "🏠" },
   { href: "/search", label: "검색", icon: "🔍" },
-  { href: "/my-recipes", label: "내 레시피", icon: "📖" },
+  { href: "/community", label: "커뮤니티", icon: "🏛️" },
   { href: "/mypage", label: "마이페이지", icon: "👤" },
 ];
 
@@ -17,7 +17,10 @@ export default function BottomTabBar() {
     <nav className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border z-50">
       <div className="max-w-lg mx-auto flex">
         {tabs.map((tab) => {
-          const isActive = pathname === tab.href;
+          const isActive =
+            tab.href === "/"
+              ? pathname === "/"
+              : pathname === tab.href || pathname.startsWith(tab.href + "/");
           return (
             <Link
               key={tab.href}

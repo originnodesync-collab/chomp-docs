@@ -102,6 +102,20 @@ export const ACHIEVEMENTS = {
   LEVEL_MAX: { condition: "쩝쩝명예박사 달성", title: "🏆 쩝쩝명예박사" },
 } as const;
 
+// 게시판 카테고리
+export const BOARD_CATEGORIES = ["잡담", "레시피공유", "질문", "후기"] as const;
+export type BoardCategory = (typeof BOARD_CATEGORIES)[number];
+
+export const BOARD_CATEGORY_LABELS: Record<string, string> = {
+  잡담: "💬 잡담",
+  레시피공유: "📝 레시피공유",
+  질문: "❓ 질문",
+  후기: "⭐ 후기",
+};
+
+// 게시판 포인트
+// COMMENT 규칙 재사용 (3P, 하루 최대 15P)
+
 // 냉장고 카테고리
 export const INVENTORY_CATEGORIES = [
   "채소",
