@@ -13,6 +13,11 @@ export interface Recipe {
   like_count: number;
   dislike_count: number;
   is_uk_food: boolean;
+  source: string | null;      // 'foodsafety' | 'user' | etc.
+  calories: number | null;
+  protein: number | null;
+  fat: number | null;
+  carbs: number | null;
   created_at: string;
 }
 

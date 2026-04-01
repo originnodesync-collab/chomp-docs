@@ -312,6 +312,42 @@ export default function RecipeDetailPage({
             </section>
           )}
 
+          {/* 영양정보 */}
+          {(recipe.calories || recipe.protein || recipe.fat || recipe.carbs) && (
+            <section className="mb-6">
+              <h3 className="font-bold text-text mb-3">영양정보 <span className="text-xs font-normal text-text-sub">(1인분 기준)</span></h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { label: "칼로리", value: recipe.calories, unit: "kcal" },
+                  { label: "탄수화물", value: recipe.carbs, unit: "g" },
+                  { label: "단백질", value: recipe.protein, unit: "g" },
+                  { label: "지방", value: recipe.fat, unit: "g" },
+                ].map(({ label, value, unit }) =>
+                  value != null ? (
+                    <div key={label} className="bg-surface border border-border rounded-xl p-3 text-center">
+                      <p className="text-base font-bold text-text">{Math.round(value)}</p>
+                      <p className="text-xs text-text-sub">{unit}</p>
+                      <p className="text-xs text-text-sub/70 mt-0.5">{label}</p>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* 출처 */}
+          {recipe.source && recipe.source !== "user" && (
+            <p className="text-xs text-text-sub mb-6">
+              📌 출처:{" "}
+              {{
+                foodsafety: "식품안전나라(식약처)",
+                nongsaro: "농사로",
+                visitkorea: "한국관광공사",
+                heritage: "한식재단",
+              }[recipe.source] || recipe.source}
+            </p>
+          )}
+
           {/* 조리 단계 */}
           {stepsBySection.length > 0 && (
             <section className="mb-6">
