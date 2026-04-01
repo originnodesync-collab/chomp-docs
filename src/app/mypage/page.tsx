@@ -16,6 +16,7 @@ export default function MyPage() {
   const { user, loading } = useUser();
   const [achievements, setAchievements] = useState<string[]>([]);
   const [stats, setStats] = useState({ recipes: 0, experiments: 0, photos: 0 });
+  const [followStats, setFollowStats] = useState({ followers: 0, following: 0 });
   const [checkinDone, setCheckinDone] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -25,11 +26,13 @@ export default function MyPage() {
     async function fetchData() {
       const supabase = createClient();
 
-      const [achRes, recipeRes, expRes, photoRes] = await Promise.all([
+      const [achRes, recipeRes, expRes, photoRes, followerRes, followingRes] = await Promise.all([
         supabase.from("user_achievements").select("achievement_code").eq("user_id", user!.id),
         supabase.from("recipes").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("experiment_logs").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("recipe_cook_photos").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", user!.id),
+        supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", user!.id),
       ]);
 
       setAchievements(achRes.data?.map(a => a.achievement_code) || []);
@@ -37,6 +40,10 @@ export default function MyPage() {
         recipes: recipeRes.count || 0,
         experiments: expRes.count || 0,
         photos: photoRes.count || 0,
+      });
+      setFollowStats({
+        followers: followerRes.count || 0,
+        following: followingRes.count || 0,
       });
 
       const today = new Date().toISOString().split("T")[0];
@@ -147,7 +154,21 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* 통계 */}
+        {/* 팔로우 통계 */}
+        <section className="grid grid-cols-2 gap-2 mb-4">
+          {[
+            { label: "팔로워", value: followStats.followers, icon: "👥" },
+            { label: "팔로잉", value: followStats.following, icon: "📡" },
+          ].map(s => (
+            <div key={s.label} className="bg-surface border border-border rounded-xl p-3 text-center">
+              <p className="text-lg mb-0.5">{s.icon}</p>
+              <p className="text-lg font-bold text-text">{s.value}</p>
+              <p className="text-xs text-text-sub">{s.label}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* 활동 통계 */}
         <section className="grid grid-cols-3 gap-2 mb-4">
           {[
             { label: "등록 레시피", value: stats.recipes, icon: "📝" },

@@ -60,6 +60,8 @@ export default function CommunityPostPage({
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
   const [comments, setComments] = useState<PostComment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState<{ id: number; nickname: string } | null>(null);
@@ -84,18 +86,38 @@ export default function CommunityPostPage({
     setComments(data.comments || []);
   }, [id]);
 
-  // Check if current user liked the post
-  const checkLike = useCallback(async () => {
-    if (!user) return;
-    // We rely on the toggle response to track state; initial state unknown
-    // For simplicity, we don't pre-fetch like status
-  }, [user]);
+  const loadFollowStatus = useCallback(async (authorId: number) => {
+    const res = await fetch(`/api/users/${authorId}/follow`);
+    const data = await res.json();
+    setIsFollowing(data.is_following || false);
+    setFollowerCount(data.follower_count || 0);
+  }, []);
 
   useEffect(() => {
     loadPost();
     loadComments();
-    checkLike();
-  }, [loadPost, loadComments, checkLike]);
+  }, [loadPost, loadComments]);
+
+  // 게시글 로드 후 작성자 팔로우 상태 확인
+  useEffect(() => {
+    if (post?.user?.id) {
+      loadFollowStatus(post.user.id);
+    }
+  }, [post?.user?.id, loadFollowStatus]);
+
+  const handleFollow = async () => {
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+    if (!post?.user?.id) return;
+    const res = await fetchWithAuth(`/api/users/${post.user.id}/follow`, { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      setIsFollowing(data.action === "followed");
+      setFollowerCount(data.follower_count);
+    }
+  };
 
   const handleLike = async () => {
     if (!user) {
@@ -253,14 +275,28 @@ export default function CommunityPostPage({
 
           {/* 작성자 */}
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
-            <span className="text-sm text-text-sub">
-              {post.user?.active_title && (
-                <span className="text-cta mr-1">
-                  [{ACHIEVEMENTS[post.user.active_title as keyof typeof ACHIEVEMENTS]?.title || post.user.active_title}]
-                </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-text-sub">
+                {post.user?.active_title && (
+                  <span className="text-cta mr-1">
+                    [{ACHIEVEMENTS[post.user.active_title as keyof typeof ACHIEVEMENTS]?.title || post.user.active_title}]
+                  </span>
+                )}
+                {post.user?.nickname || "탈퇴한 유저"}
+              </span>
+              {post.user && !isOwner && (
+                <button
+                  onClick={handleFollow}
+                  className={`text-xs px-2.5 py-0.5 rounded-full font-semibold transition-colors ${
+                    isFollowing
+                      ? "bg-surface border border-border text-text-sub"
+                      : "bg-cta/10 text-cta border border-cta/20"
+                  }`}
+                >
+                  {isFollowing ? `팔로잉 ${followerCount}` : `+ 팔로우 ${followerCount}`}
+                </button>
               )}
-              {post.user?.nickname || "탈퇴한 유저"}
-            </span>
+            </div>
             <div className="flex items-center gap-3 text-xs text-text-sub">
               <span>👁️ {post.view_count}</span>
               <span>💬 {post.comment_count}</span>
