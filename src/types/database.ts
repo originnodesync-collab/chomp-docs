@@ -55,6 +55,7 @@ export interface Comment {
   recipe_id: number;
   user_id: number;
   content: string;
+  parent_id: number | null;
   created_at: string;
 }
 
@@ -139,7 +140,7 @@ export interface UserInventory {
 export interface Report {
   id: number;
   reporter_id: number;
-  target_type: "recipe" | "comment" | "photo";
+  target_type: "recipe" | "comment" | "photo" | "post" | "post_comment";
   target_id: number;
   status: "pending" | "hidden" | "dismissed";
   created_at: string;

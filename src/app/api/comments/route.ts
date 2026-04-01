@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
   }
 
-  const { recipe_id, content } = await request.json();
+  const { recipe_id, content, parent_id } = await request.json();
 
   if (!recipe_id || !content?.trim()) {
     return NextResponse.json({ error: "내용을 입력해주세요" }, { status: 400 });
@@ -19,6 +19,23 @@ export async function POST(request: NextRequest) {
 
   if (content.trim().length > 300) {
     return NextResponse.json({ error: "댓글은 300자 이내로 작성해주세요" }, { status: 400 });
+  }
+
+  // parent_id가 있으면 유효한 원댓글인지 확인 (대댓글의 대댓글 방지)
+  if (parent_id) {
+    const { data: parentComment } = await supabase
+      .from("comments")
+      .select("id, parent_id")
+      .eq("id", parent_id)
+      .eq("recipe_id", recipe_id)
+      .single();
+
+    if (!parentComment) {
+      return NextResponse.json({ error: "존재하지 않는 댓글입니다" }, { status: 404 });
+    }
+    if (parentComment.parent_id !== null) {
+      return NextResponse.json({ error: "대댓글에는 답글을 달 수 없습니다" }, { status: 400 });
+    }
   }
 
   const { data: dbUser } = await supabase
@@ -37,6 +54,7 @@ export async function POST(request: NextRequest) {
       recipe_id,
       user_id: dbUser.id,
       content: content.trim(),
+      parent_id: parent_id ?? null,
     })
     .select()
     .single();
@@ -58,12 +76,25 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await createClient();
+
+  // 전체 댓글을 한 번에 가져온 후 클라이언트에서 트리 구성
   const { data } = await supabase
     .from("comments")
-    .select("*, user:users(nickname, active_title, profile_image_url)")
+    .select("*, user:users(id, nickname, active_title, profile_image_url)")
     .eq("recipe_id", recipeId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+    .order("created_at", { ascending: true })
+    .limit(200);
 
-  return NextResponse.json({ comments: data || [] });
+  const allComments = data || [];
+
+  // 원댓글 + 대댓글 트리 구조로 변환
+  const topLevel = allComments.filter((c) => c.parent_id === null);
+  const replies = allComments.filter((c) => c.parent_id !== null);
+
+  const threaded = topLevel.map((comment) => ({
+    ...comment,
+    replies: replies.filter((r) => r.parent_id === comment.id),
+  }));
+
+  return NextResponse.json({ comments: threaded });
 }

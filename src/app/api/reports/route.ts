@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const { target_type, target_id } = await request.json();
 
-  if (!target_type || !target_id || !["recipe", "comment", "photo"].includes(target_type)) {
+  if (!target_type || !target_id || !["recipe", "comment", "photo", "post", "post_comment"].includes(target_type)) {
     return NextResponse.json({ error: "잘못된 요청입니다" }, { status: 400 });
   }
 
