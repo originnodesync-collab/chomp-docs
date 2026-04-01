@@ -16,6 +16,7 @@ export default function MyPage() {
   const [achievements, setAchievements] = useState<string[]>([]);
   const [stats, setStats] = useState({ recipes: 0, experiments: 0, photos: 0 });
   const [checkinDone, setCheckinDone] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -79,8 +80,6 @@ export default function MyPage() {
   const progressToNext = nextLevel
     ? ((user.points - levelInfo.requiredPoints) / (nextLevel.requiredPoints - levelInfo.requiredPoints)) * 100
     : 100;
-
-  const [toast, setToast] = useState<string | null>(null);
 
   const handleCheckin = async () => {
     const res = await fetchWithAuth("/api/auth/checkin", { method: "POST" });
